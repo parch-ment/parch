@@ -1,24 +1,26 @@
 // src/components/ProjectCards.tsx
 import React, { useState } from 'react';
 import { CSSProperties } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { selectProjects } from '../features/projects_view/projects_view_slice';
+import { curr_projects_list, curr_chosen_project, selectProject } from '../features/projects_view/projects_view_slice';
 import { useNavigate } from 'react-router-dom';
+import { Project } from '../features/projects_view/projects_view_slice';
 
 const ProjectCards: React.FC = () => {
-    const projects = useSelector((state: RootState) => selectProjects(state));
-    const [selectedProject, setSelectedProject] = useState<typeof projects[number] | null>(null);
+    const dispatch = useDispatch();
     const navigate = useNavigate();
+    const curr_projects = useSelector((state: RootState) => curr_projects_list(state));
+    const chosen_project = useSelector((state: RootState) => curr_chosen_project(state))
   
-    const handleCardClick = (project: typeof projects[number]) => {
-        setSelectedProject(project);
+    const handleCardClick = (project: Project) => {
+        dispatch(selectProject(project))
         navigate("/organized_canvas_view")
       };
 
       return (
         <div style={styles.container}>
-          {projects.map((project) => (
+          {curr_projects.map((project) => (
             <button
               key={project.id}
               style={styles.card}
