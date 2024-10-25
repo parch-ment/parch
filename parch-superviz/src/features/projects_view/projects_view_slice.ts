@@ -13,7 +13,8 @@ interface ProjectsState {
 
 const initialState: ProjectsState = {
   projects: [
-    { id: 1, title: 'Dummy Project 1', description: 'This is a dummy project 1' },
+    { id: 1, title: 'Hospital', description: 'This is an awesome hospital, it is awesome' },
+    { id: 1, title: 'Dummy Project 1', description: 'This is a great school it is the best' },
   ],
   chosenProject: null,
 };

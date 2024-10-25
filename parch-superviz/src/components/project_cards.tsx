@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 import { CSSProperties } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { curr_projects_list, curr_chosen_project, selectProject } from '../features/projects_view/projects_view_slice';
+import { curr_projects_list, curr_chosen_project, selectProject, addProject } from '../features/projects_view/projects_view_slice';
 import { useNavigate } from 'react-router-dom';
 import { Project } from '../features/projects_view/projects_view_slice';
+import { Card, CardContent, Typography } from '@mui/material';
 
 const ProjectCards: React.FC = () => {
     const dispatch = useDispatch();
