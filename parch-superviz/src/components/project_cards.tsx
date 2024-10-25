@@ -15,9 +15,11 @@ const ProjectCards: React.FC = () => {
     const chosen_project = useSelector((state: RootState) => curr_chosen_project(state))
   
     const handleCardClick = (project: Project) => {
-        dispatch(selectProject(project))
-        navigate("/organized_canvas_view")
-      };
+      dispatch(selectProject(project));
+      window.location.href = "/GLB-Viewer/index.html"; 
+      
+    };
+    
 
       return (
         <div style={styles.container}>

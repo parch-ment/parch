@@ -12,11 +12,9 @@ const App: React.FC = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/open_canvas_view" element={<OpenCanvasView />} />
         <Route path="/" element={<LoginPage />} /> 
         <Route path="/user_register" element={<RegisterPage />} />
         <Route path="/projects_view" element={<ProjectCards />} />
-        <Route path="/organized_canvas_view" element={<OrganizedCanvasView />} />
       </Routes>
     </Router>
   );

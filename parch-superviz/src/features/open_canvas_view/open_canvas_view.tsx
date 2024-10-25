@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { SuperVizRoomProvider } from "@superviz/react-sdk"
 
 export const OpenCanvasView: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -19,19 +18,6 @@ export const OpenCanvasView: React.FC = () => {
 
   return (
     <div>
-    {/* <SuperVizRoomProvider
-        developerKey={DEVELOPER_KEY}
-        group={{
-            id: "dummy-ID",
-            name: "GROUP-NAME",
-        }}
-        participant={{
-            id: "USER-ID",
-            name: "USER-NAME",
-        }}
-        roomId="ROOM-ID>"
-        >
-        </SuperVizRoomProvider> */}
       <h1>Open Canvas View</h1>
       <div style={{ width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <div style={{ width: '50%', height: '50%', border: '1px solid #ccc', borderRadius: '10px', padding: '20px' }}>
