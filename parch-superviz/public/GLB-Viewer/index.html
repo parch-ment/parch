@@ -5,9 +5,12 @@
 	<link rel='stylesheet' type='text/css' href='viewer.css'/>
 	<!-- <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet"> -->
 	<script src="https://kit.fontawesome.com/daa834e337.js" crossorigin="anonymous"></script>
-	<style>
-
-	</style>
+ 	<script type="module" src="https://unpkg.com/@superviz/realtime@latest/dist/browser/index.js"></script>
+	 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+	 <!-- Three.js library for 3D models -->
+	 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+	 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+ 
 </head>
 <body>
 	<div class='wrapper'>
@@ -19,7 +22,7 @@
 	                <div class='header-icon'><i class='fa fa-sitemap'></i></div>
 	                <div class='header-title'>Components</div>
 	            </div>
-	            <input type='file' id='fileInput' style='display: none;' accept='.glb'>
+				<input type='file' id='fileInput' style='display: none;' accept='.glb'>
 	            <label for='fileInput' class='header-item' id='browseModelBtn'>
 	                <div class='header-icon'><i class='fa fa-folder'></i></div>
 	                <div class='header-title'>Upload 3D File</div>
@@ -38,7 +41,7 @@
 	    </div>
 
 		<!-- canvas -->
-	    <div class='viewer-wrapper'>
+	    <div class='viewer-wrapper' id="sharedCanvas">
 	        <div id='viewerCanvasWrapper'></div>
 	        <div class='slider-container' id='explodeSliderWrapper'  style='display: none;'>
 	            <div class='explode-content'>
@@ -75,10 +78,10 @@
 	        <div class='share-sidebar' id='shareSidebar' style='display: none;'>
 	            <h1 class='sidebar-title'>Some content here!</h1>
 	        </div>
-	        <!-- <div class='loader' id='loader'>
+	        <div class='loader' id='loader'>
 	            <div class='loader-text' id='loaderInfo'>Loading...</div>
 	            <div class='loader-spinner'></div>
-	        </div> -->
+	        </div>
 	    </div>
 
 	    <!-- Footer -->
@@ -117,10 +120,9 @@
 	<script>
 	
 
-	// window.onload = () => {
-	// 	let v = Viewer();
-	// 	v.loadModel('models/BLDG_BYATL-2088McKinleyRdADU_detached-3DView-FROMDRIVEWAY.glb');
-	// }
+	window.onload = () => {
+		let v = Viewer();
+	}
 
 	</script>
 </body>

@@ -1,1 +1,0 @@
-# Parch Superviz Hackathon Application

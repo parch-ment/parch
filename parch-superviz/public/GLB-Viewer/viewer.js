@@ -30,6 +30,66 @@ const ViewerUI = {
 	explodeFace: document.getElementById('explodeFace')
 };
 
+// Initialize variables for the SuperViz SDK and viewer
+let realtime;
+let viewerInstance;
+
+window.onload = () => {
+  viewerInstance = Viewer();
+  initializeSuperViz();
+  ViewerUI.hide(loader)
+//   document.getElementById('loader').style.display = 'none';
+};
+
+function initializeSuperViz() {
+  realtime = new window.Realtime('pobgd0xtau95eeo2xawx1wbkm11py0', {
+    participant: {
+      id: generateUniqueId(),  // Unique participant ID (you can replace this with real user IDs)
+      name: 'User Name'        // Name of the participant
+    }
+  });
+
+  // Set up collaboration features
+  setupCollaborationHandlers();
+}
+
+function setupCollaborationHandlers() {
+  // Sync camera movement between participants
+  viewerInstance.onCameraMove((cameraState) => {
+    realtime.send('cameraMove', { cameraState });
+  });
+
+  // Listen for camera move events from other participants
+  realtime.on('cameraMove', (data) => {
+    viewerInstance.setCameraState(data.cameraState);
+  });
+
+  // Handle 3D model uploads (when the user uploads a file)
+  document.getElementById('fileInput').addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const fileData = e.target.result;
+        realtime.send('modelUploaded', { fileData });
+        viewerInstance.loadModel(fileData); // Load the model in the viewer
+      };
+      reader.readAsArrayBuffer(file); // Convert the file to a binary format for sending
+    }
+  });
+
+  // Listen for model uploads from other participants and load them
+  realtime.on('modelUploaded', (data) => {
+    viewerInstance.loadModel(data.fileData);
+  });
+}
+
+// Utility function to generate a random unique ID (this can be replaced with actual user IDs)
+function generateUniqueId() {
+  return 'participant_' + Math.floor(Math.random() * 1000000);
+}
+
+
 function setItemSelected(ele, bool) {
 	if (bool) {
 		ele.classList.add('item-selected');
@@ -287,6 +347,48 @@ function Viewer() {
 		});
 	}
 
+	function displayPDF(fileContent) {
+		const pdfjsLib = window['pdfjsLib'] || window['pdfjs-dist/build/pdf'];
+	
+		if (!pdfjsLib) {
+			console.error('PDF.js library not loaded!');
+			return;
+		}
+	
+		pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
+		const loadingTask = pdfjsLib.getDocument({ data: fileContent });
+		loadingTask.promise.then(function(pdf) {
+			pdf.getPage(1).then(function(page) {
+				const scale = 1.5;
+				const viewport = page.getViewport({ scale });
+				const canvas = document.getElementById('pdfViewer');
+				const context = canvas.getContext('2d');
+				canvas.height = viewport.height;
+				canvas.width = viewport.width;
+				const renderContext = {
+					canvasContext: context,
+					viewport: viewport,
+				};
+				page.render(renderContext);
+			});
+		}).catch(function(error) {
+			console.error('Error loading PDF:', error);
+		});
+	}
+	
+
+	function displayImage(fileContent) {
+		const image = document.getElementById('imageViewer');
+		image.src = fileContent;
+		hide(ViewerUI.loader); 
+	}
+
+	function displayFDX(fileContent) {
+		const fdxViewer = document.getElementById('fdxViewer');
+		fdxViewer.innerHTML = new TextDecoder().decode(fileContent); 
+		hide(ViewerUI.loader);
+	}
+
 	ViewerUI.fileInput.addEventListener('input', function(evt) {
 		let file = evt.target.files[0];
 		if (file) {
@@ -303,6 +405,121 @@ function Viewer() {
 			reader.readAsDataURL(file);
 		}
 	});
+	
+	hide(ViewerUI.loader);
+
+
+	// document.getElementById('fileInput').addEventListener('change', function(evt) {
+	// 	let file = evt.target.files[0];
+	// 	if (file) {
+	// 		const fileExtension = file.name.split('.').pop().toLowerCase();
+	// 		const canvas = document.getElementById('sharedCanvas');
+	// 		const context = canvas.getContext('2d');
+			
+	// 		resetCanvas(canvas, context);
+	
+	// 		let reader = new FileReader();
+	
+	// 		reader.onload = function(e) {
+	// 			const fileContent = e.target.result;
+	
+	// 			if (fileExtension === 'pdf') {
+	// 				displayPDF(fileContent, canvas);
+	// 			} else if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
+	// 				displayImage(fileContent, canvas);
+	// 			} else if (['glb', 'gltf'].includes(fileExtension)) {
+	// 				display3DModel(fileContent, canvas);
+	// 			} else if (fileExtension === 'fdx') {
+	// 				displayFDX(fileContent, canvas);
+	// 			} else {
+	// 				alert('Unsupported file type!');
+	// 			}
+	// 		};
+	
+	// 		if (fileExtension === 'pdf' || ['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
+	// 			reader.readAsDataURL(file);
+	// 		} else {
+	// 			reader.readAsArrayBuffer(file);
+	// 		}
+	// 	}
+	// });
+	
+	function resetCanvas(canvas, context) {
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		
+		if (window.renderer) {
+			window.renderer.dispose();
+			window.renderer = null;
+		}
+	}
+
+	function displayPDF(fileContent, canvas) {
+		const pdfjsLib = window['pdfjsLib'];
+		pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
+	
+		const loadingTask = pdfjsLib.getDocument({ data: fileContent });
+		loadingTask.promise.then(function(pdf) {
+			pdf.getPage(1).then(function(page) {
+				const scale = 1.5;
+				const viewport = page.getViewport({ scale });
+	
+				canvas.height = viewport.height;
+				canvas.width = viewport.width;
+	
+				const context = canvas.getContext('2d');
+				const renderContext = { canvasContext: context, viewport: viewport };
+				page.render(renderContext);
+			});
+		});
+	}
+	
+	function displayImage(fileContent, canvas) {
+		const img = new Image();
+		img.src = fileContent;
+		img.onload = function() {
+			const context = canvas.getContext('2d');
+			canvas.width = img.width;
+			canvas.height = img.height;
+			context.drawImage(img, 0, 0);
+		};
+	}
+	
+	function display3DModel(fileContent, canvas) {
+		const scene = new THREE.Scene();
+		const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
+		window.renderer = new THREE.WebGLRenderer({ canvas });
+	
+		window.renderer.setSize(canvas.width, canvas.height);
+	
+		const loader = new THREE.GLTFLoader();
+		loader.parse(fileContent, '', function(gltf) {
+			scene.add(gltf.scene);
+			camera.position.z = 5;
+			window.renderer.render(scene, camera);
+	
+			function animate() {
+				requestAnimationFrame(animate);
+				window.renderer.render(scene, camera);
+			}
+			animate();
+		});
+	}
+	
+	function displayFDX(fileContent, canvas) {
+		const text = new TextDecoder().decode(fileContent);
+		const context = canvas.getContext('2d');
+	
+		context.font = '16px Arial';
+		context.fillStyle = '#000';
+		context.clearRect(0, 0, canvas.width, canvas.height);
+
+		const lines = text.split('\n');
+		let y = 20; 
+		lines.forEach(line => {
+			context.fillText(line, 10, y);
+			y += 20;
+		});
+	}
 	
 	hide(ViewerUI.loader);
 
